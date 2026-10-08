@@ -18,7 +18,7 @@ npm run preview
 
 ## Deploy to GitHub Pages
 
-The build writes the static site to `docs/` on the `master` branch. Set **Settings → Pages → Build and deployment → Source** to **Deploy from a branch**, then select **master** and **/docs**. After each change, run `npm run build` and commit the updated `docs/` output. Relative asset paths support the repository's project Pages URL.
+The build writes the static site to `docs/` on the `main` branch. Set **Settings → Pages → Build and deployment → Source** to **Deploy from a branch**, then select **main** and **/docs**. After each change, run `npm run build` and commit the updated `docs/` output. Relative asset paths support the repository's project Pages URL.
 
 ## Artwork notes
 
