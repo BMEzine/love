@@ -36,6 +36,7 @@ const savedPalettes = readSavedPalettes();
 const svgDocument = new DOMParser().parseFromString(sourceSvg, 'image/svg+xml');
 const svg = svgDocument.documentElement;
 const colorState = new Map<string, string>();
+let stickerMode = false;
 
 function readSavedPalettes(): string[][] {
   try {
@@ -95,7 +96,25 @@ function prepareArtwork(): void {
     const group = groups.get(layer.id);
     if (group) svg.appendChild(group);
   });
-  artwork.replaceChildren(document.importNode(svg, true));
+  renderArtwork();
+}
+
+function renderArtwork(): void {
+  const preview = svg.cloneNode(true) as SVGSVGElement;
+  if (stickerMode) addTransparentHeartMask(preview);
+  artwork.replaceChildren(document.importNode(preview, true));
+  if (colorState.size) setColors(layers.map((layer) => colorState.get(layer.id)!), false);
+}
+
+function setStickerMode(enabled: boolean): void {
+  stickerMode = enabled;
+  const stage = artwork.closest('.art-stage');
+  const toggle = document.querySelector<HTMLButtonElement>('#sticker-preview-toggle');
+  stage?.classList.toggle('sticker-mode', stickerMode);
+  toggle?.setAttribute('aria-pressed', String(stickerMode));
+  if (toggle) toggle.textContent = stickerMode ? 'Heart view' : 'Sticker view';
+  renderArtwork();
+  controls.querySelector('#layer-layer9')?.classList.toggle('layer-dimmed', stickerMode);
 }
 
 function hslToHex(hue: number, saturation: number, lightness: number): string {
@@ -149,7 +168,7 @@ function setColors(colors: string[], updateUrl = true): void {
 
 function renderControls(): void {
   controls.innerHTML = layers.map((layer, index) => `
-    <div class="layer-row">
+    <div class="layer-row" id="layer-${layer.id}">
       <span class="layer-index">0${index + 1}</span>
       <span class="layer-name">${layer.name}</span>
       <span class="color-input-wrap">
@@ -314,10 +333,11 @@ function addTransparentHeartMask(downloadable: SVGSVGElement): void {
 }
 
 async function downloadHeart(asSticker = false): Promise<void> {
-  const renderedSvg = artwork.querySelector<SVGSVGElement>('svg');
-  if (!renderedSvg) return;
-
-  const downloadable = renderedSvg.cloneNode(true) as SVGSVGElement;
+  const downloadable = svg.cloneNode(true) as SVGSVGElement;
+  layers.forEach((layer) => {
+    const path = downloadable.querySelector<SVGPathElement>(`#${layer.id} path`);
+    if (path) path.setAttribute('fill', colorState.get(layer.id) ?? initialColors[layers.indexOf(layer)]);
+  });
   downloadable.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
   downloadable.setAttribute('width', '512');
   downloadable.setAttribute('height', '512');
@@ -424,6 +444,7 @@ document.querySelector<HTMLButtonElement>('#surprise-button')?.addEventListener(
   renderRandomPalettes();
   setColors(randomPalettes[0]);
 });
+document.querySelector<HTMLButtonElement>('#sticker-preview-toggle')?.addEventListener('click', () => setStickerMode(!stickerMode));
 document.querySelector<HTMLButtonElement>('#download-button')?.addEventListener('click', () => downloadHeart());
 document.querySelector<HTMLButtonElement>('#sticker-download-button')?.addEventListener('click', () => downloadHeart(true));
 document.querySelector<HTMLButtonElement>('#share-button')?.addEventListener('click', copyShareLink);
