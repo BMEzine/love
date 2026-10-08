@@ -1,14 +1,14 @@
 import sourceSvg from '../BME_HEART_LAYERS.svg?raw';
 import './style.css';
 
-type Layer = { id: string; name: string; position: string };
+type Layer = { id: string; name: string };
 
 const layers: Layer[] = [
-  { id: 'layer1', name: 'Dots', position: '01' },
-  { id: 'layer6', name: 'Center fill', position: '02' },
-  { id: 'layer7', name: 'Scrollwork', position: '03' },
-  { id: 'layer8', name: 'Heart silhouette', position: '04' },
-  { id: 'layer9', name: 'Background', position: '05' },
+  { id: 'layer1', name: 'Dots' },
+  { id: 'layer6', name: 'Center fill' },
+  { id: 'layer7', name: 'Scrollwork' },
+  { id: 'layer8', name: 'Heart silhouette' },
+  { id: 'layer9', name: 'Background' },
 ];
 
 const initialColors = ['#3C47AC', '#F1EFEC', '#6163BA', '#0A0A0A', '#FAF9F9'];
@@ -152,7 +152,6 @@ function renderControls(): void {
     <div class="layer-row">
       <span class="layer-index">0${index + 1}</span>
       <span class="layer-name">${layer.name}</span>
-      <span class="layer-position">${layer.position}</span>
       <span class="color-input-wrap">
         <button class="color-chip" type="button" data-chip="${layer.id}" aria-label="Choose color for ${layer.name}" aria-expanded="false" aria-controls="picker-${layer.id}"></button>
       </span>
