@@ -13,9 +13,9 @@ const layers: Layer[] = [
 
 const initialColors = ['#DDD1BD', '#E7B85D', '#779C83', '#CF7868', '#6B7F9B'];
 const palettes = [
-  { name: 'Pop', colors: ['#FF006E', '#FB5607', '#FFBE0B', '#3A86FF', '#8338EC'] },
-  { name: 'Tropical', colors: ['#F72585', '#FF7B00', '#FFD60A', '#06D6A0', '#3A0CA3'] },
-  { name: 'Primary', colors: ['#FF1744', '#FF9100', '#FFEA00', '#00C853', '#2979FF'] },
+  { name: 'Terracotta & sage', colors: ['#E5D5C3', '#81937D', '#C77B65', '#B7C5AB', '#6C8582'] },
+  { name: 'Blue & amber', colors: ['#E8DCC8', '#748BA2', '#D5A36C', '#B8C8D0', '#C87B68'] },
+  { name: 'Plum & ochre', colors: ['#E3D8CE', '#90768F', '#C5A16F', '#B7A7B7', '#758275'] },
   { name: 'Sunset', colors: ['#F2C98D', '#E58E67', '#C95C55', '#9C5363', '#604C68'] },
   { name: 'Sea glass', colors: ['#D6E8D8', '#9CC9BA', '#5FA6A0', '#47828B', '#365D73'] },
   { name: 'Soft lilac', colors: ['#E5C9D3', '#CFA7C3', '#A786B7', '#8479A9', '#637C96'] },
