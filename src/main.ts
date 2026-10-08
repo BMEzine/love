@@ -171,15 +171,21 @@ function renderControls(): void {
   for (const layer of layers) {
     const row = controls.querySelector<HTMLElement>(`#picker-${layer.id}`)?.closest('.layer-row');
     const trigger = row?.querySelector<HTMLButtonElement>('[data-chip]');
-    trigger?.addEventListener('click', () => {
+    const togglePicker = () => {
       const picker = row?.querySelector<HTMLElement>('.color-picker');
       const opening = picker?.hidden ?? false;
       controls.querySelectorAll<HTMLElement>('.color-picker').forEach((item) => { item.hidden = true; });
       controls.querySelectorAll<HTMLButtonElement>('[data-chip]').forEach((item) => item.setAttribute('aria-expanded', 'false'));
       if (picker && opening) {
         picker.hidden = false;
-        trigger.setAttribute('aria-expanded', 'true');
+        trigger?.setAttribute('aria-expanded', 'true');
       }
+    };
+    trigger?.addEventListener('click', togglePicker);
+    row?.addEventListener('click', (event) => {
+      const target = event.target;
+      if (target instanceof Element && target.closest('.color-picker, .color-chip')) return;
+      togglePicker();
     });
     row?.querySelectorAll<HTMLButtonElement>('[data-layer-color]').forEach((button) => {
       button.addEventListener('click', () => {
@@ -202,7 +208,7 @@ function renderControls(): void {
 
   document.addEventListener('click', (event) => {
     const target = event.target;
-    if (!(target instanceof Element) || target.closest('.color-picker, .color-chip')) return;
+    if (!(target instanceof Element) || target.closest('.layer-row')) return;
     controls.querySelectorAll<HTMLElement>('.color-picker').forEach((picker) => { picker.hidden = true; });
     controls.querySelectorAll<HTMLButtonElement>('[data-chip]').forEach((button) => button.setAttribute('aria-expanded', 'false'));
   });
@@ -363,9 +369,6 @@ document.querySelector<HTMLButtonElement>('#save-palette-button')?.addEventListe
   }
 });
 
-document.querySelector<HTMLButtonElement>('#reset-button')?.addEventListener('click', () => {
-  setColors(palettes[0].colors);
-});
 document.querySelector<HTMLButtonElement>('#surprise-button')?.addEventListener('click', () => {
   randomPalettes.unshift(generateRandomPalette());
   randomPalettes.length = 3;
