@@ -73,6 +73,20 @@ function prepareArtwork(): void {
   artwork.replaceChildren(document.importNode(svg, true));
 }
 
+function hslToHex(hue: number, saturation: number, lightness: number): string {
+  const s = saturation / 100;
+  const l = lightness / 100;
+  const chroma = (1 - Math.abs(2 * l - 1)) * s;
+  const x = chroma * (1 - Math.abs((hue / 60) % 2 - 1));
+  const match = l - chroma / 2;
+  const [r, g, b] = hue < 60 ? [chroma, x, 0]
+    : hue < 120 ? [x, chroma, 0]
+      : hue < 180 ? [0, chroma, x]
+        : hue < 240 ? [0, x, chroma]
+          : hue < 300 ? [x, 0, chroma] : [chroma, 0, x];
+  return [r, g, b].map((value) => Math.round((value + match) * 255).toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+
 function setColors(colors: string[], updateUrl = true): void {
   layers.forEach((layer, index) => {
     const color = colors[index].toUpperCase();
@@ -86,6 +100,11 @@ function setColors(colors: string[], updateUrl = true): void {
     if (chip) chip.style.setProperty('--swatch', color);
     if (hex) hex.textContent = color;
   });
+  controls.querySelectorAll<HTMLButtonElement>('[data-layer-color]').forEach((button) => {
+    const color = button.dataset.layerColor;
+    button.style.setProperty('--swatch', colorState.get(button.dataset.sourceLayer!) ?? color ?? '#ffffff');
+    button.setAttribute('aria-label', `Use ${colorState.get(button.dataset.sourceLayer!) ?? color} from ${layers.find((layer) => layer.id === button.dataset.sourceLayer)?.name ?? 'layer'}`);
+  });
   shareStatus.textContent = '';
   if (updateUrl) {
     const params = new URLSearchParams(window.location.search);
@@ -96,20 +115,50 @@ function setColors(colors: string[], updateUrl = true): void {
 
 function renderControls(): void {
   controls.innerHTML = layers.map((layer, index) => `
-    <label class="layer-row" for="color-${layer.id}">
+    <div class="layer-row">
       <span class="layer-index">0${index + 1}</span>
       <span class="layer-name">${layer.name}</span>
       <span class="layer-position">${layer.position}</span>
       <span class="color-input-wrap">
-        <span class="color-chip" data-chip="${layer.id}" aria-hidden="true"></span>
-        <input id="color-${layer.id}" type="color" value="${initialColors[index]}" aria-label="Choose color for ${layer.name}" />
+        <button class="color-chip" type="button" data-chip="${layer.id}" aria-label="Choose color for ${layer.name}" aria-expanded="false" aria-controls="picker-${layer.id}"></button>
       </span>
       <span class="hex-value" data-hex="${layer.id}" aria-hidden="true">${initialColors[index]}</span>
-    </label>
+      <div class="color-picker" id="picker-${layer.id}" hidden>
+        <span class="picker-label">Current layer colors</span>
+        <div class="picker-swatches">${layers.map((source) => `
+          <button class="picker-swatch" type="button" data-layer-color data-source-layer="${source.id}" aria-label="Use color from ${source.name}" title="${source.name}"></button>
+        `).join('')}</div>
+        <label class="custom-color-label" for="color-${layer.id}">Custom color</label>
+        <input id="color-${layer.id}" class="custom-color-input" type="color" value="${initialColors[index]}" aria-label="Choose a custom color for ${layer.name}" />
+      </div>
+    </div>
   `).join('');
 
   for (const layer of layers) {
-    controls.querySelector<HTMLInputElement>(`#color-${layer.id}`)?.addEventListener('input', (event) => {
+    const row = controls.querySelector<HTMLElement>(`#picker-${layer.id}`)?.closest('.layer-row');
+    const trigger = row?.querySelector<HTMLButtonElement>('[data-chip]');
+    trigger?.addEventListener('click', () => {
+      const picker = row?.querySelector<HTMLElement>('.color-picker');
+      const opening = picker?.hidden ?? false;
+      controls.querySelectorAll<HTMLElement>('.color-picker').forEach((item) => { item.hidden = true; });
+      controls.querySelectorAll<HTMLButtonElement>('[data-chip]').forEach((item) => item.setAttribute('aria-expanded', 'false'));
+      if (picker && opening) {
+        picker.hidden = false;
+        trigger.setAttribute('aria-expanded', 'true');
+      }
+    });
+    row?.querySelectorAll<HTMLButtonElement>('[data-layer-color]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const color = colorState.get(button.dataset.sourceLayer!)!;
+        const colors = layers.map((item) => colorState.get(item.id)!);
+        colors[layers.findIndex((item) => item.id === layer.id)] = color;
+        setColors(colors);
+        const picker = row.querySelector<HTMLElement>('.color-picker');
+        if (picker) picker.hidden = true;
+        trigger?.setAttribute('aria-expanded', 'false');
+      });
+    });
+    row?.querySelector<HTMLInputElement>(`#color-${layer.id}`)?.addEventListener('input', (event) => {
       const changed = event.currentTarget as HTMLInputElement;
       const colors = layers.map((item) => colorState.get(item.id)!);
       colors[layers.findIndex((item) => item.id === layer.id)] = changed.value;
@@ -164,7 +213,7 @@ async function downloadHeart(): Promise<void> {
     const pngUrl = URL.createObjectURL(pngBlob);
     const link = document.createElement('a');
     link.href = pngUrl;
-    link.download = 'bme-heart-512.png';
+    link.download = 'my-bme-heart.png';
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -203,9 +252,15 @@ document.querySelector<HTMLButtonElement>('#reset-button')?.addEventListener('cl
   shareStatus.textContent = 'Back to the original colors.';
 });
 document.querySelector<HTMLButtonElement>('#surprise-button')?.addEventListener('click', () => {
-  const palette = palettes[Math.floor(Math.random() * palettes.length)];
-  setColors(palette.colors);
-  shareStatus.textContent = `A little ${palette.name.toLowerCase()} inspiration.`;
+  const hue = Math.floor(Math.random() * 360);
+  const colors = layers.map((_, index) => {
+    const layerHue = (hue + index * 47 + Math.floor(Math.random() * 25)) % 360;
+    const saturation = 38 + Math.floor(Math.random() * 43);
+    const lightness = 35 + Math.floor(Math.random() * 41);
+    return `#${hslToHex(layerHue, saturation, lightness)}`;
+  });
+  setColors(colors);
+  shareStatus.textContent = 'A new color combination, made just for you.';
 });
 document.querySelector<HTMLButtonElement>('#download-button')?.addEventListener('click', downloadHeart);
 document.querySelector<HTMLButtonElement>('#share-button')?.addEventListener('click', copyShareLink);
