@@ -13,7 +13,9 @@ const layers: Layer[] = [
 
 const initialColors = ['#DDD1BD', '#E7B85D', '#779C83', '#CF7868', '#6B7F9B'];
 const palettes = [
-  { name: 'Garden', colors: ['#E8B4A3', '#E7C66B', '#779C83', '#CF7868', '#6B7F9B'] },
+  { name: 'Pop', colors: ['#FF006E', '#FB5607', '#FFBE0B', '#3A86FF', '#8338EC'] },
+  { name: 'Tropical', colors: ['#F72585', '#FF7B00', '#FFD60A', '#06D6A0', '#3A0CA3'] },
+  { name: 'Primary', colors: ['#FF1744', '#FF9100', '#FFEA00', '#00C853', '#2979FF'] },
   { name: 'Sunset', colors: ['#F2C98D', '#E58E67', '#C95C55', '#9C5363', '#604C68'] },
   { name: 'Sea glass', colors: ['#D6E8D8', '#9CC9BA', '#5FA6A0', '#47828B', '#365D73'] },
   { name: 'Soft lilac', colors: ['#E5C9D3', '#CFA7C3', '#A786B7', '#8479A9', '#637C96'] },
