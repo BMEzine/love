@@ -11,7 +11,7 @@ const layers: Layer[] = [
   { id: 'layer9', name: 'Background', position: '05' },
 ];
 
-const initialColors = ['#DDD1BD', '#E7B85D', '#779C83', '#CF7868', '#6B7F9B'];
+const initialColors = ['#3C47AC', '#F1EFEC', '#6163BA', '#0A0A0A', '#FAF9F9'];
 const palettes = [
   { name: 'Simple', colors: ['#C14856', '#F1EFEC', '#C14856', '#FAF9F9', '#6B6B6B'] },
   { name: 'BME light', colors: ['#3C47AC', '#F1EFEC', '#6163BA', '#0A0A0A', '#FAF9F9'] },
