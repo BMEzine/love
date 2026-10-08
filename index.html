@@ -3,61 +3,117 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f6f2eb" />
-    <meta name="description" content="Make a heart your own. Explore colors for a layered paper-cut heart artwork." />
-    <title>LOVE — BMEzine Heart Studio</title>
+    <meta name="theme-color" content="#faf9f9" />
+    <meta name="description" content="Make a heart your own. Explore colors for the modified heart artwork." />
+    <title>LOVE — Modified Heart Studio</title>
   </head>
   <body>
-    <div class="app-shell">
-      <header class="topbar">
-        <a class="wordmark" href="./" aria-label="LOVE home"><span class="brand-mark" aria-hidden="true">♥</span> LOVE</a>
-        <span class="top-note">A little color goes a long way</span>
-      </header>
+    <header>
+      <div class="superbar">
+        <div class="wrap superbar-inner">
+          <nav aria-label="LOVE"><span class="is-active">LOVE</span></nav>
+          <span>Heart study · No. 001</span>
+        </div>
+      </div>
+      <div class="wrap">
+        <div class="masthead">
+          <a class="wordmark" href="./" aria-label="LOVE home"><span>LOVE</span></a>
+          <p>A color studio for<br />the modified heart</p>
+        </div>
+        <div class="dateline"><span>BME creative tools</span><span>Five sheets · endless combinations</span></div>
+      </div>
+    </header>
 
-      <main>
-        <section class="intro" aria-labelledby="page-title">
-          <p class="eyebrow"><span class="eyebrow-dot"></span> YOUR COLORS. YOUR HEART.</p>
+    <main class="wrap">
+      <section class="intro" aria-labelledby="page-title">
+        <div class="intro-index" aria-hidden="true">01</div>
+        <div>
+          <p class="eyebrow">Your colors · Your heart</p>
           <h1 id="page-title">Make it <em>yours.</em></h1>
-          <p class="intro-copy">A layered paper heart, ready for your imagination.<br class="desktop-break" /> Pick a color for each sheet and see your artwork come to life.</p>
-        </section>
+        </div>
+        <p class="intro-copy">Build a one-of-a-kind heart from five color layers. Choose each color, find the combination that feels right, then share it.</p>
+      </section>
 
-        <section class="studio" aria-label="Heart artwork color studio">
-          <div class="art-panel">
-            <div class="panel-topline"><span>THE ARTWORK</span><span class="live-indicator"><i></i> LIVE PREVIEW</span></div>
-            <div class="art-stage">
-              <div class="paper-shadow" aria-hidden="true"></div>
-              <div id="artwork" class="artwork" role="img" aria-label="Layered heart artwork preview"></div>
-              <div class="art-caption"><span class="caption-heart">♥</span> FIVE LAYERS, ONE OF A KIND</div>
-            </div>
-            <div class="panel-footer"><span>Each sheet adds a little more magic.</span><span class="dimensions">90 × 90 <small>MM</small></span></div>
+      <section class="studio" aria-label="Heart artwork color studio">
+        <div class="art-panel">
+          <div class="panel-heading"><span>Plate 01 · The artwork</span><span class="live-indicator"><i></i> Live preview</span></div>
+          <div class="art-stage">
+            <div class="registration-mark registration-mark-a" aria-hidden="true"></div>
+            <div class="registration-mark registration-mark-b" aria-hidden="true"></div>
+            <div id="artwork" class="artwork" role="img" aria-label="Modified heart artwork preview"></div>
+          </div>
+          <div class="panel-footer"><span>Five layers, one of a kind</span><span class="dimensions">90 × 90 <small>mm</small></span></div>
+        </div>
+
+        <aside class="controls-panel" aria-labelledby="colors-title">
+          <div class="controls-heading">
+            <div><p class="eyebrow">Build the stack</p><h2 id="colors-title">Choose your colors</h2></div>
+            <span class="layer-count">05 <small>layers</small></span>
+          </div>
+          <p class="controls-copy">Choose a shade for each layer. The stack builds from the base up.</p>
+          <div class="column-labels" aria-hidden="true"><span>Layer</span><span>Position</span><span>Color</span></div>
+          <div id="layer-controls" class="layer-list" aria-label="Heart layer colors"></div>
+
+          <div class="palette-section">
+            <div class="section-label"><span>Palette archive</span><span>09 studies</span></div>
+            <div id="palette-list" class="palette-list" aria-label="Color palettes"></div>
           </div>
 
-          <aside class="controls-panel" aria-labelledby="colors-title">
-            <div class="controls-heading">
-              <div><p class="eyebrow small-eyebrow">MAKE YOUR MARK</p><h2 id="colors-title">Choose your colors</h2></div>
-              <span class="layer-count">05 <span>LAYERS</span></span>
-            </div>
-            <p class="controls-copy">Choose a shade for each paper layer. The stack builds from the bottom up.</p>
-            <div id="layer-controls" class="layer-list" aria-label="Paper layer colors"></div>
-            <div class="palette-section">
-              <div class="section-label"><span>NEED A STARTING POINT?</span><span class="sparkle">✳</span></div>
-              <div id="palette-list" class="palette-list" aria-label="Color palettes"></div>
-            </div>
-            <div class="control-actions">
-              <button id="surprise-button" class="button button-quiet" type="button"><span aria-hidden="true">✦</span> Surprise me</button>
-              <button id="reset-button" class="button button-quiet" type="button">Reset</button>
-            </div>
-            <button id="share-button" class="button button-primary" type="button"><span aria-hidden="true">↗</span> Copy a link to your design</button>
-            <p id="share-status" class="share-status" aria-live="polite"></p>
-          </aside>
-        </section>
+          <div class="control-actions">
+            <button id="surprise-button" class="button button-quiet" type="button"><span aria-hidden="true">✦</span> Surprise me</button>
+            <button id="reset-button" class="button button-quiet" type="button">Reset study</button>
+          </div>
+          <div class="primary-actions">
+            <button id="download-button" class="button button-primary button-download" type="button"><span aria-hidden="true">↓</span> Download heart</button>
+            <button id="share-button" class="button button-primary" type="button"><span aria-hidden="true">↗</span> Copy share link</button>
+          </div>
+          <p id="share-status" class="share-status" aria-live="polite"></p>
+        </aside>
+      </section>
 
-        <section class="how-it-works" aria-label="How it works">
-          <span class="how-number">01</span><p>Pick a color for each layer</p><span class="how-line"></span><span class="how-number">02</span><p>Find your favorite combination</p><span class="how-line"></span><span class="how-number">03</span><p>Share the heart you made</p>
-        </section>
-      </main>
-      <footer class="footer"><span>MADE WITH A LITTLE HEART</span><span>COLOR IS A FEELING. FOLLOW YOURS.</span></footer>
-    </div>
+      <section class="how-it-works" aria-labelledby="how-title">
+        <div class="section-label"><span id="how-title">How it works</span><span>Three moves</span></div>
+        <ol>
+          <li><span>01</span><strong>Pick</strong><p>Set a color for every layer.</p></li>
+          <li><span>02</span><strong>Compose</strong><p>Find a combination that feels like yours.</p></li>
+          <li><span>03</span><strong>Share</strong><p>Copy the link. The colors travel with it.</p></li>
+        </ol>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-content">
+        <div class="footer-grid">
+          <div class="footer-about">
+            <div class="footer-brand">
+              <span class="footer-mark"><img src="./bme-glyph.png" alt="BME tribal-head glyph" /></span>
+              <div><strong>BME<sup>™</sup></strong><span>Body Modification Ezine</span></div>
+            </div>
+            <p>BME belongs to the global body modification community. We stand for safety, education, understanding, and an open record of body art and culture.</p>
+          </div>
+          <nav class="footer-column" aria-labelledby="footer-network">
+            <h2 id="footer-network">Network</h2>
+            <a href="https://www.bme.com/">BME</a>
+            <a href="https://www.bme.com/topics/modblog/">ModBlog</a>
+            <a href="https://wiki.bme.com/">Wiki</a>
+            <a href="https://www.patreon.com/bmezine">Patreon</a>
+            <a href="https://bmeshop.com/">Shop</a>
+          </nav>
+          <nav class="footer-column" aria-labelledby="footer-bme">
+            <h2 id="footer-bme">BME.COM</h2>
+            <a href="https://www.bme.com/about-us/">About us</a>
+            <a href="https://www.bme.com/how-to-support-bme/">Support BME</a>
+            <a href="https://www.bme.com/code-of-conduct/">Community Code of Conduct</a>
+            <a href="https://www.bme.com/copyright-dmca/">Copyright / DMCA</a>
+            <a href="https://www.bme.com/privacy-policy/">Privacy policy</a>
+          </nav>
+        </div>
+        <div class="footer-base">
+          <span>BME™ · Body Modification Ezine. Est. 1994.</span>
+          <span>BME documents risk; it does not endorse or instruct. © 1994–2026.</span>
+        </div>
+      </div>
+    </footer>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

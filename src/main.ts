@@ -4,24 +4,24 @@ import './style.css';
 type Layer = { id: string; name: string; position: string };
 
 const layers: Layer[] = [
-  { id: 'layer1', name: 'Square background', position: 'BASE' },
-  { id: 'layer6', name: 'Center details', position: '04' },
+  { id: 'layer1', name: 'Dots', position: '01' },
+  { id: 'layer6', name: 'Center fill', position: '02' },
   { id: 'layer7', name: 'Scrollwork', position: '03' },
-  { id: 'layer8', name: 'Heart silhouette', position: '02' },
-  { id: 'layer9', name: 'Outer layer', position: 'TOP' },
+  { id: 'layer8', name: 'Heart silhouette', position: '04' },
+  { id: 'layer9', name: 'Background', position: '05' },
 ];
 
 const initialColors = ['#DDD1BD', '#E7B85D', '#779C83', '#CF7868', '#6B7F9B'];
 const palettes = [
-  { name: 'Rainbow', colors: ['#E85D5D', '#F49A38', '#EAC84A', '#56A878', '#4F82C2'] },
-  { name: 'BME tokens', colors: ['#FAF9F9', '#DFA837', '#6163BA', '#3C47AC', '#F1EFEC'] },
-  { name: 'Citrus & cobalt', colors: ['#F3E7D6', '#E4A62E', '#1F9B8F', '#315FA8', '#E5674F'] },
-  { name: 'BME after hours', colors: ['#0A0A0A', '#DFA837', '#6163BA', '#3C47AC', '#F1EFEC'] },
+  { name: 'Simple', colors: ['#C14856', '#F1EFEC', '#C14856', '#FAF9F9', '#6B6B6B'] },
+  { name: 'BME light', colors: ['#3C47AC', '#F1EFEC', '#6163BA', '#0A0A0A', '#FAF9F9'] },
+  { name: 'BME dark', colors: ['#6163BA', '#1E1E1E', '#F1EFEC', '#6163BA', '#0A0A0A'] },
   { name: 'Plum & ochre', colors: ['#E3D8CE', '#90768F', '#C5A16F', '#B7A7B7', '#758275'] },
   { name: 'Sunset', colors: ['#F2C98D', '#E58E67', '#C95C55', '#9C5363', '#604C68'] },
   { name: 'Sea glass', colors: ['#D6E8D8', '#9CC9BA', '#5FA6A0', '#47828B', '#365D73'] },
   { name: 'Soft lilac', colors: ['#E5C9D3', '#CFA7C3', '#A786B7', '#8479A9', '#637C96'] },
   { name: 'Earth', colors: ['#E5D4B6', '#C7A27B', '#A56D52', '#758064', '#555A50'] },
+  { name: 'Rainbow', colors: ['#E85D5D', '#F49A38', '#EAC84A', '#56A878', '#4F82C2'] },
 ];
 
 const artwork = document.querySelector<HTMLDivElement>('#artwork')!;
@@ -65,7 +65,7 @@ function prepareArtwork(): void {
     path.setAttribute('fill', '#ffffff');
   }
 
-  // Reorder source groups from the backing up to the top paper sheet.
+  // Reorder source groups from the backing up to the top layer.
   layers.forEach((layer) => {
     const group = groups.get(layer.id);
     if (group) svg.appendChild(group);
@@ -122,11 +122,59 @@ function renderPalettes(): void {
   paletteList.innerHTML = palettes.map((palette) => `
     <button class="palette-button" type="button" aria-label="Use ${palette.name} palette" title="${palette.name}">
       <span class="palette-dots" style="--c1:${palette.colors[0]};--c2:${palette.colors[1]};--c3:${palette.colors[2]};--c4:${palette.colors[3]};--c5:${palette.colors[4]}"></span>
+      <span class="palette-name">${palette.name}</span>
     </button>
   `).join('');
   paletteList.querySelectorAll<HTMLButtonElement>('.palette-button').forEach((button, index) => {
     button.addEventListener('click', () => setColors(palettes[index].colors));
   });
+}
+
+async function downloadHeart(): Promise<void> {
+  const renderedSvg = artwork.querySelector<SVGSVGElement>('svg');
+  if (!renderedSvg) return;
+
+  const downloadable = renderedSvg.cloneNode(true) as SVGSVGElement;
+  downloadable.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  downloadable.setAttribute('width', '512');
+  downloadable.setAttribute('height', '512');
+  downloadable.removeAttribute('role');
+  downloadable.removeAttribute('aria-hidden');
+  downloadable.removeAttribute('focusable');
+
+  const source = new XMLSerializer().serializeToString(downloadable);
+  const svgBlob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+  const svgUrl = URL.createObjectURL(svgBlob);
+
+  try {
+    const image = new Image();
+    image.src = svgUrl;
+    await image.decode();
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('Canvas is unavailable');
+    context.drawImage(image, 0, 0, 512, 512);
+
+    const pngBlob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('PNG export failed')), 'image/png');
+    });
+    const pngUrl = URL.createObjectURL(pngBlob);
+    const link = document.createElement('a');
+    link.href = pngUrl;
+    link.download = 'bme-heart-512.png';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(pngUrl), 1000);
+    shareStatus.textContent = 'Your 512 × 512 PNG has been downloaded.';
+  } catch {
+    shareStatus.textContent = 'The PNG could not be created. Please try again.';
+  } finally {
+    URL.revokeObjectURL(svgUrl);
+  }
 }
 
 async function copyShareLink(): Promise<void> {
@@ -159,4 +207,5 @@ document.querySelector<HTMLButtonElement>('#surprise-button')?.addEventListener(
   setColors(palette.colors);
   shareStatus.textContent = `A little ${palette.name.toLowerCase()} inspiration.`;
 });
+document.querySelector<HTMLButtonElement>('#download-button')?.addEventListener('click', downloadHeart);
 document.querySelector<HTMLButtonElement>('#share-button')?.addEventListener('click', copyShareLink);
