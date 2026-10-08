@@ -112,7 +112,7 @@ function setStickerMode(enabled: boolean): void {
   const toggle = document.querySelector<HTMLButtonElement>('#sticker-preview-toggle');
   stage?.classList.toggle('sticker-mode', stickerMode);
   toggle?.setAttribute('aria-pressed', String(stickerMode));
-  if (toggle) toggle.textContent = stickerMode ? 'Heart view' : 'Sticker view';
+  if (toggle) toggle.textContent = stickerMode ? 'Paper view' : 'Sticker view';
   renderArtwork();
   controls.querySelector('#layer-layer9')?.classList.toggle('layer-dimmed', stickerMode);
 }
