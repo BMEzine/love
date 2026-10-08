@@ -27,6 +27,8 @@ const palettes = [
 const artwork = document.querySelector<HTMLDivElement>('#artwork')!;
 const controls = document.querySelector<HTMLDivElement>('#layer-controls')!;
 const paletteList = document.querySelector<HTMLDivElement>('#palette-list')!;
+const randomPaletteList = document.querySelector<HTMLDivElement>('#random-palette-list')!;
+const randomPalettes: string[][] = [];
 const savedPaletteList = document.querySelector<HTMLDivElement>('#saved-palette-list')!;
 const savedPaletteStorageKey = 'love-heart-saved-palettes';
 const collectionOpenStorageKey = 'love-heart-collection-open';
@@ -110,6 +112,16 @@ function hslToHex(hue: number, saturation: number, lightness: number): string {
   return [r, g, b].map((value) => Math.round((value + match) * 255).toString(16).padStart(2, '0')).join('').toUpperCase();
 }
 
+function generateRandomPalette(): string[] {
+  const hue = Math.floor(Math.random() * 360);
+  return layers.map((_, index) => {
+    const layerHue = (hue + index * 47 + Math.floor(Math.random() * 25)) % 360;
+    const saturation = 38 + Math.floor(Math.random() * 43);
+    const lightness = 35 + Math.floor(Math.random() * 41);
+    return `#${hslToHex(layerHue, saturation, lightness)}`;
+  });
+}
+
 function setColors(colors: string[], updateUrl = true): void {
   layers.forEach((layer, index) => {
     const color = colors[index].toUpperCase();
@@ -187,6 +199,13 @@ function renderControls(): void {
       setColors(colors);
     });
   }
+
+  document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element) || target.closest('.color-picker, .color-chip')) return;
+    controls.querySelectorAll<HTMLElement>('.color-picker').forEach((picker) => { picker.hidden = true; });
+    controls.querySelectorAll<HTMLButtonElement>('[data-chip]').forEach((button) => button.setAttribute('aria-expanded', 'false'));
+  });
 }
 
 function renderPalettes(): void {
@@ -197,6 +216,17 @@ function renderPalettes(): void {
   `).join('');
   paletteList.querySelectorAll<HTMLButtonElement>('.palette-button').forEach((button, index) => {
     button.addEventListener('click', () => setColors(palettes[index].colors));
+  });
+}
+
+function renderRandomPalettes(): void {
+  randomPaletteList.innerHTML = randomPalettes.map((colors, index) => `
+    <button class="palette-button" type="button" aria-label="Use random palette ${index + 1}">
+      <span class="palette-dots" style="--c1:${colors[0]};--c2:${colors[1]};--c3:${colors[2]};--c4:${colors[3]};--c5:${colors[4]}"></span>
+    </button>
+  `).join('');
+  randomPaletteList.querySelectorAll<HTMLButtonElement>('.palette-button').forEach((button, index) => {
+    button.addEventListener('click', () => setColors(randomPalettes[index]));
   });
 }
 
@@ -297,6 +327,8 @@ async function copyShareLink(): Promise<void> {
 prepareArtwork();
 renderControls();
 renderPalettes();
+randomPalettes.push(...Array.from({ length: 3 }, () => generateRandomPalette()));
+renderRandomPalettes();
 renderSavedPalettes();
 const collectionSection = document.querySelector<HTMLDetailsElement>('.collection-section')!;
 collectionSection.open = savedPalettes.length === 0 || getCollectionOpenPreference();
@@ -335,14 +367,10 @@ document.querySelector<HTMLButtonElement>('#reset-button')?.addEventListener('cl
   setColors(palettes[0].colors);
 });
 document.querySelector<HTMLButtonElement>('#surprise-button')?.addEventListener('click', () => {
-  const hue = Math.floor(Math.random() * 360);
-  const colors = layers.map((_, index) => {
-    const layerHue = (hue + index * 47 + Math.floor(Math.random() * 25)) % 360;
-    const saturation = 38 + Math.floor(Math.random() * 43);
-    const lightness = 35 + Math.floor(Math.random() * 41);
-    return `#${hslToHex(layerHue, saturation, lightness)}`;
-  });
-  setColors(colors);
+  randomPalettes.unshift(generateRandomPalette());
+  randomPalettes.length = 3;
+  renderRandomPalettes();
+  setColors(randomPalettes[0]);
 });
 document.querySelector<HTMLButtonElement>('#download-button')?.addEventListener('click', downloadHeart);
 document.querySelector<HTMLButtonElement>('#share-button')?.addEventListener('click', copyShareLink);

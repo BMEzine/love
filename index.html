@@ -46,6 +46,11 @@
           <div class="column-labels" aria-hidden="true"><span>Layer</span><span>Position</span><span>Color</span></div>
           <div id="layer-controls" class="layer-list" aria-label="Heart layer colors"></div>
 
+          <section class="random-section" aria-labelledby="random-palettes-title">
+            <div class="section-label random-heading"><span id="random-palettes-title">Random palettes</span><button id="surprise-button" class="button button-quiet" type="button"><span aria-hidden="true">✦</span> Generate new</button></div>
+            <div id="random-palette-list" class="palette-list" aria-label="Random color palettes"></div>
+          </section>
+
           <div class="palette-groups">
             <details class="palette-section" open>
               <summary class="section-label"><span>Palette archive</span></summary>
@@ -59,7 +64,6 @@
           </div>
 
           <div class="control-actions">
-            <button id="surprise-button" class="button button-quiet" type="button"><span aria-hidden="true">✦</span> Surprise me</button>
             <button id="reset-button" class="button button-quiet" type="button">Reset</button>
           </div>
           <div class="primary-actions">
