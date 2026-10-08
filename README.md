@@ -22,4 +22,4 @@ The build writes the static site to `docs/` on the `main` branch. Set **Settings
 
 ## Artwork notes
 
-`BME_HEART_LAYERS.svg` is the source artwork. The app keeps the original file intact and adapts it at runtime: it preserves the compound path geometry and layer order, removes the original red strokes, and applies each selected color to its SVG group. The displayed labels are provisional descriptions based on the shapes; update them when physical layer names are available. The repeated square subpaths remain part of the source geometry, so verify the preview against the intended cut files before using this as a cutting-file exporter.
+`BME_HEART_LAYERS.svg` is the source artwork. The app keeps the original file intact and adapts it at runtime: it removes the source's alignment-only opacity and red strokes, makes the paper layers opaque, and applies each selected color. It stacks the plain full-square `layer1` as the backing, then builds upward through the cut layers. Display labels are provisional descriptions based on the shapes; update them if the physical layer names differ. The preview is for color exploration, not a cutting-file exporter.

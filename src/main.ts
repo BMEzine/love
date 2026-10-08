@@ -4,14 +4,14 @@ import './style.css';
 type Layer = { id: string; name: string; position: string };
 
 const layers: Layer[] = [
-  { id: 'layer9', name: 'Outer edge', position: 'BASE' },
-  { id: 'layer8', name: 'Heart contour', position: '04' },
+  { id: 'layer1', name: 'Square background', position: 'BASE' },
+  { id: 'layer6', name: 'Center details', position: '04' },
   { id: 'layer7', name: 'Scrollwork', position: '03' },
-  { id: 'layer6', name: 'Accent details', position: '02' },
-  { id: 'layer1', name: 'Square sheet', position: 'TOP' },
+  { id: 'layer8', name: 'Heart silhouette', position: '02' },
+  { id: 'layer9', name: 'Outer layer', position: 'TOP' },
 ];
 
-const initialColors = ['#6B7F9B', '#CF7868', '#779C83', '#E7C66B', '#E8B4A3'];
+const initialColors = ['#DDD1BD', '#E7B85D', '#779C83', '#CF7868', '#6B7F9B'];
 const palettes = [
   { name: 'Garden', colors: ['#E8B4A3', '#E7C66B', '#779C83', '#CF7868', '#6B7F9B'] },
   { name: 'Sunset', colors: ['#F2C98D', '#E58E67', '#C95C55', '#9C5363', '#604C68'] },
@@ -44,19 +44,28 @@ function prepareArtwork(): void {
   svg.removeAttribute('width');
   svg.removeAttribute('height');
 
-  // Preserve each compound path as-authored: its subpath winding encodes the
-  // paper-cut shapes. Remove only the source's red outlines and keep its light
-  // layer transparency so the stacked geometry remains visible.
-  for (const layer of layers) {
-    const group = svg.querySelector<SVGGElement>(`#${layer.id}`);
+  const groups = new Map(layers.map((layer) => [
+    layer.id,
+    svg.querySelector<SVGGElement>(`#${layer.id}`),
+  ]));
+
+  // Opacity was only used in the source for alignment. The physical sheets are
+  // opaque, with the full-square backing at the bottom and fine cuts above it.
+  for (const group of groups.values()) {
     const path = group?.querySelector<SVGPathElement>('path');
     if (!group || !path) continue;
     group.removeAttribute('style');
     path.removeAttribute('style');
     path.setAttribute('stroke', 'none');
-    path.setAttribute('fill-opacity', '0.2');
+    path.setAttribute('fill-opacity', '1');
     path.setAttribute('fill', '#ffffff');
   }
+
+  // Reorder source groups from the backing up to the top paper sheet.
+  layers.forEach((layer) => {
+    const group = groups.get(layer.id);
+    if (group) svg.appendChild(group);
+  });
   artwork.replaceChildren(document.importNode(svg, true));
 }
 
