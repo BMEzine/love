@@ -40,16 +40,22 @@
 
         <aside class="controls-panel" aria-labelledby="colors-title">
           <div class="controls-heading">
-            <div><p class="eyebrow">Build the stack</p><h2 id="colors-title">Choose your colors</h2></div>
+            <div><h2 id="colors-title">Choose your colors</h2></div>
             <span class="layer-count">05 <small>layers</small></span>
           </div>
-          <p class="controls-copy">Choose a shade for each layer.</p>
           <div class="column-labels" aria-hidden="true"><span>Layer</span><span>Position</span><span>Color</span></div>
           <div id="layer-controls" class="layer-list" aria-label="Heart layer colors"></div>
 
-          <div class="palette-section">
-            <div class="section-label"><span>Palette archive</span></div>
-            <div id="palette-list" class="palette-list" aria-label="Color palettes"></div>
+          <div class="palette-groups">
+            <details class="palette-section" open>
+              <summary class="section-label"><span>Palette archive</span></summary>
+              <div id="palette-list" class="palette-list" aria-label="Color palettes"></div>
+            </details>
+            <details class="palette-section collection-section">
+              <summary class="section-label"><span>Your collection</span></summary>
+              <button id="save-palette-button" class="save-palette-button" type="button">Save current palette</button>
+              <div id="saved-palette-list" class="palette-list" aria-label="Your saved palettes"></div>
+            </details>
           </div>
 
           <div class="control-actions">
@@ -60,7 +66,6 @@
             <button id="download-button" class="button button-primary button-download" type="button"><span aria-hidden="true">↓</span> Download heart</button>
             <button id="share-button" class="button button-primary" type="button"><span aria-hidden="true">↗</span> Copy share link</button>
           </div>
-          <p id="share-status" class="share-status" aria-live="polite"></p>
         </aside>
       </section>
 

@@ -27,10 +27,33 @@ const palettes = [
 const artwork = document.querySelector<HTMLDivElement>('#artwork')!;
 const controls = document.querySelector<HTMLDivElement>('#layer-controls')!;
 const paletteList = document.querySelector<HTMLDivElement>('#palette-list')!;
-const shareStatus = document.querySelector<HTMLParagraphElement>('#share-status')!;
+const savedPaletteList = document.querySelector<HTMLDivElement>('#saved-palette-list')!;
+const savedPaletteStorageKey = 'love-heart-saved-palettes';
+const collectionOpenStorageKey = 'love-heart-collection-open';
+const savedPalettes = readSavedPalettes();
 const svgDocument = new DOMParser().parseFromString(sourceSvg, 'image/svg+xml');
 const svg = svgDocument.documentElement;
 const colorState = new Map<string, string>();
+
+function readSavedPalettes(): string[][] {
+  try {
+    const saved = JSON.parse(localStorage.getItem(savedPaletteStorageKey) ?? '[]');
+    if (!Array.isArray(saved)) return [];
+    return saved.filter((colors): colors is string[] =>
+      Array.isArray(colors) && colors.length === layers.length && colors.every((color) => typeof color === 'string' && /^#[\da-f]{6}$/i.test(color)),
+    ).map((colors) => colors.map((color) => color.toUpperCase()));
+  } catch {
+    return [];
+  }
+}
+
+function getCollectionOpenPreference(): boolean {
+  try {
+    return localStorage.getItem(collectionOpenStorageKey) !== 'false';
+  } catch {
+    return true;
+  }
+}
 
 function getColorsFromUrl(): string[] | null {
   const encoded = new URLSearchParams(window.location.search).get('colors');
@@ -105,7 +128,6 @@ function setColors(colors: string[], updateUrl = true): void {
     button.style.setProperty('--swatch', colorState.get(button.dataset.sourceLayer!) ?? color ?? '#ffffff');
     button.setAttribute('aria-label', `Use ${colorState.get(button.dataset.sourceLayer!) ?? color} from ${layers.find((layer) => layer.id === button.dataset.sourceLayer)?.name ?? 'layer'}`);
   });
-  shareStatus.textContent = '';
   if (updateUrl) {
     const params = new URLSearchParams(window.location.search);
     params.set('colors', layers.map((layer) => colorState.get(layer.id)!.slice(1)).join(','));
@@ -169,13 +191,41 @@ function renderControls(): void {
 
 function renderPalettes(): void {
   paletteList.innerHTML = palettes.map((palette) => `
-    <button class="palette-button" type="button" aria-label="Use ${palette.name} palette" title="${palette.name}">
+    <button class="palette-button" type="button" aria-label="Use ${palette.name} palette">
       <span class="palette-dots" style="--c1:${palette.colors[0]};--c2:${palette.colors[1]};--c3:${palette.colors[2]};--c4:${palette.colors[3]};--c5:${palette.colors[4]}"></span>
-      <span class="palette-name">${palette.name}</span>
     </button>
   `).join('');
   paletteList.querySelectorAll<HTMLButtonElement>('.palette-button').forEach((button, index) => {
     button.addEventListener('click', () => setColors(palettes[index].colors));
+  });
+}
+
+function renderSavedPalettes(): void {
+  savedPaletteList.innerHTML = savedPalettes.length
+    ? savedPalettes.map((colors, index) => `
+      <div class="saved-palette-item">
+        <button class="palette-button" type="button" aria-label="Apply saved palette ${index + 1}">
+          <span class="palette-dots" style="--c1:${colors[0]};--c2:${colors[1]};--c3:${colors[2]};--c4:${colors[3]};--c5:${colors[4]}"></span>
+        </button>
+        <button class="remove-saved-palette" type="button" aria-label="Remove saved palette ${index + 1}">×</button>
+      </div>
+    `).join('')
+    : '';
+
+  savedPaletteList.querySelectorAll<HTMLButtonElement>('.saved-palette-item > .palette-button').forEach((button, index) => {
+    button.addEventListener('click', () => setColors(savedPalettes[index]));
+  });
+  savedPaletteList.querySelectorAll<HTMLButtonElement>('.remove-saved-palette').forEach((button, index) => {
+    button.addEventListener('click', () => {
+      const updated = savedPalettes.filter((_, itemIndex) => itemIndex !== index);
+      try {
+        localStorage.setItem(savedPaletteStorageKey, JSON.stringify(updated));
+        savedPalettes.splice(0, savedPalettes.length, ...updated);
+        renderSavedPalettes();
+      } catch {
+        // Leave the saved collection unchanged if storage is unavailable.
+      }
+    });
   });
 }
 
@@ -218,9 +268,8 @@ async function downloadHeart(): Promise<void> {
     link.click();
     link.remove();
     window.setTimeout(() => URL.revokeObjectURL(pngUrl), 1000);
-    shareStatus.textContent = 'Your 512 × 512 PNG has been downloaded.';
   } catch {
-    shareStatus.textContent = 'The PNG could not be created. Please try again.';
+    // The browser may not support creating a PNG from the artwork.
   } finally {
     URL.revokeObjectURL(svgUrl);
   }
@@ -232,24 +281,58 @@ async function copyShareLink(): Promise<void> {
   const params = new URLSearchParams(window.location.search);
   params.set('colors', layers.map((layer) => colorState.get(layer.id)!.slice(1)).join(','));
   const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+  let copied = false;
   try {
     await navigator.clipboard.writeText(url);
-    shareStatus.textContent = 'Your link is copied and ready to share.';
+    copied = true;
   } catch {
-    shareStatus.textContent = 'Copy this link from your browser’s address bar.';
+    // Clipboard access may be unavailable in some browsers.
   }
-  button.innerHTML = '<span aria-hidden="true">✓</span> Link copied';
+  button.innerHTML = copied
+    ? '<span aria-hidden="true">✓</span> Link copied'
+    : '<span aria-hidden="true">↗</span> Copy link manually';
   window.setTimeout(() => { button.innerHTML = original; }, 1800);
 }
 
 prepareArtwork();
 renderControls();
 renderPalettes();
+renderSavedPalettes();
+const collectionSection = document.querySelector<HTMLDetailsElement>('.collection-section')!;
+collectionSection.open = savedPalettes.length === 0 || getCollectionOpenPreference();
+collectionSection.addEventListener('toggle', () => {
+  if (savedPalettes.length === 0) {
+    if (!collectionSection.open) collectionSection.open = true;
+    return;
+  }
+  try {
+    localStorage.setItem(collectionOpenStorageKey, String(collectionSection.open));
+  } catch {
+    // Keep the current disclosure state for this session if storage is unavailable.
+  }
+});
 setColors(getColorsFromUrl() ?? initialColors, false);
 
+document.querySelector<HTMLButtonElement>('#save-palette-button')?.addEventListener('click', () => {
+  const colors = layers.map((layer) => colorState.get(layer.id)!);
+  const updated = [...savedPalettes, colors];
+  try {
+    localStorage.setItem(savedPaletteStorageKey, JSON.stringify(updated));
+    savedPalettes.push(colors);
+    renderSavedPalettes();
+    collectionSection.open = true;
+    try {
+      localStorage.setItem(collectionOpenStorageKey, 'true');
+    } catch {
+      // Saved colors remain available for this session if preference storage fails.
+    }
+  } catch {
+    // Storage may be unavailable or full.
+  }
+});
+
 document.querySelector<HTMLButtonElement>('#reset-button')?.addEventListener('click', () => {
-  setColors(initialColors);
-  shareStatus.textContent = 'Back to the original colors.';
+  setColors(palettes[0].colors);
 });
 document.querySelector<HTMLButtonElement>('#surprise-button')?.addEventListener('click', () => {
   const hue = Math.floor(Math.random() * 360);
@@ -260,7 +343,6 @@ document.querySelector<HTMLButtonElement>('#surprise-button')?.addEventListener(
     return `#${hslToHex(layerHue, saturation, lightness)}`;
   });
   setColors(colors);
-  shareStatus.textContent = 'A new color combination, made just for you.';
 });
 document.querySelector<HTMLButtonElement>('#download-button')?.addEventListener('click', downloadHeart);
 document.querySelector<HTMLButtonElement>('#share-button')?.addEventListener('click', copyShareLink);
