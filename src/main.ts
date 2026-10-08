@@ -14,8 +14,8 @@ const layers: Layer[] = [
 const initialColors = ['#DDD1BD', '#E7B85D', '#779C83', '#CF7868', '#6B7F9B'];
 const palettes = [
   { name: 'Rainbow', colors: ['#E85D5D', '#F49A38', '#EAC84A', '#56A878', '#4F82C2'] },
-  { name: 'BME tokens', colors: ['#FAF9F9', '#DFA837', '#6163BA', '#3C47AC', '#F1EFEC'] },
-  { name: 'Terracotta & sage', colors: ['#E5D5C3', '#81937D', '#C77B65', '#B7C5AB', '#6C8582'] },
+  { name: 'BME after hours', colors: ['#0A0A0A', '#DFA837', '#6163BA', '#3C47AC', '#F1EFEC'] },
+  { name: 'Citrus & cobalt', colors: ['#F3E7D6', '#E4A62E', '#1F9B8F', '#315FA8', '#E5674F'] },
   { name: 'Blue & amber', colors: ['#E8DCC8', '#748BA2', '#D5A36C', '#B8C8D0', '#C87B68'] },
   { name: 'Plum & ochre', colors: ['#E3D8CE', '#90768F', '#C5A16F', '#B7A7B7', '#758275'] },
   { name: 'Sunset', colors: ['#F2C98D', '#E58E67', '#C95C55', '#9C5363', '#604C68'] },
