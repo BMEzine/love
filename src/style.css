@@ -125,7 +125,9 @@ h1 em { color: var(--heritage-blue); font-weight: 600; }
 .primary-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .button-primary { width: 100%; min-height: 46px; border: 1px solid var(--ink); color: var(--gauze); background: var(--ink); }
 .button-primary:hover { border-color: var(--deep-blue); background: var(--deep-blue); }
-.button-download { border-color: var(--heritage-blue); background: var(--heritage-blue); }
+.button-download, .sticker-download { border-color: var(--heritage-blue); background: var(--heritage-blue); }
+.sticker-download:hover { border-color: var(--deep-blue); background: var(--deep-blue); }
+#share-button { grid-column: 1 / -1; }
 .button-primary span { margin-right: 8px; font-size: 14px; }
 
 .site-footer { border-top: 3px solid var(--deep-blue); color: var(--gauze); background: var(--ink); }

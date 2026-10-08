@@ -265,7 +265,56 @@ function renderSavedPalettes(): void {
   });
 }
 
-async function downloadHeart(): Promise<void> {
+function addTransparentHeartMask(downloadable: SVGSVGElement): void {
+  const backgroundGroup = downloadable.querySelector<SVGGElement>('#layer9');
+  const backgroundPath = backgroundGroup?.querySelector<SVGPathElement>('path');
+  if (!backgroundGroup || !backgroundPath) throw new Error('Heart silhouette is unavailable');
+
+  const [minX, minY, width, height] = (downloadable.getAttribute('viewBox') ?? '0 0 90 90').split(/\s+/).map(Number);
+  const namespace = 'http://www.w3.org/2000/svg';
+  let defs = downloadable.querySelector<SVGDefsElement>('defs');
+  if (!defs) {
+    defs = document.createElementNS(namespace, 'defs');
+    downloadable.prepend(defs);
+  }
+
+  const mask = document.createElementNS(namespace, 'mask');
+  mask.setAttribute('id', 'sticker-heart-mask');
+  mask.setAttribute('maskUnits', 'userSpaceOnUse');
+  mask.setAttribute('maskContentUnits', 'userSpaceOnUse');
+  mask.setAttribute('mask-type', 'luminance');
+  mask.setAttribute('x', String(minX));
+  mask.setAttribute('y', String(minY));
+  mask.setAttribute('width', String(width));
+  mask.setAttribute('height', String(height));
+
+  const white = document.createElementNS(namespace, 'rect');
+  white.setAttribute('x', String(minX));
+  white.setAttribute('y', String(minY));
+  white.setAttribute('width', String(width));
+  white.setAttribute('height', String(height));
+  white.setAttribute('fill', 'white');
+
+  const cutout = backgroundPath.cloneNode(true) as SVGPathElement;
+  cutout.removeAttribute('id');
+  cutout.removeAttribute('style');
+  cutout.setAttribute('fill', 'black');
+  cutout.setAttribute('fill-rule', 'evenodd');
+  cutout.setAttribute('stroke', 'none');
+  const transform = backgroundGroup.getAttribute('transform');
+  if (transform) cutout.setAttribute('transform', transform);
+  mask.append(white, cutout);
+  defs.appendChild(mask);
+
+  const artworkGroup = document.createElementNS(namespace, 'g');
+  artworkGroup.setAttribute('mask', 'url(#sticker-heart-mask)');
+  Array.from(downloadable.children).forEach((child) => {
+    if (child !== defs && child.tagName.toLowerCase() === 'g') artworkGroup.appendChild(child);
+  });
+  downloadable.appendChild(artworkGroup);
+}
+
+async function downloadHeart(asSticker = false): Promise<void> {
   const renderedSvg = artwork.querySelector<SVGSVGElement>('svg');
   if (!renderedSvg) return;
 
@@ -276,6 +325,7 @@ async function downloadHeart(): Promise<void> {
   downloadable.removeAttribute('role');
   downloadable.removeAttribute('aria-hidden');
   downloadable.removeAttribute('focusable');
+  if (asSticker) addTransparentHeartMask(downloadable);
 
   const source = new XMLSerializer().serializeToString(downloadable);
   const svgBlob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
@@ -299,7 +349,7 @@ async function downloadHeart(): Promise<void> {
     const pngUrl = URL.createObjectURL(pngBlob);
     const link = document.createElement('a');
     link.href = pngUrl;
-    link.download = 'my-bme-heart.png';
+    link.download = asSticker ? 'my-bme-heart-sticker.png' : 'my-bme-heart.png';
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -375,5 +425,6 @@ document.querySelector<HTMLButtonElement>('#surprise-button')?.addEventListener(
   renderRandomPalettes();
   setColors(randomPalettes[0]);
 });
-document.querySelector<HTMLButtonElement>('#download-button')?.addEventListener('click', downloadHeart);
+document.querySelector<HTMLButtonElement>('#download-button')?.addEventListener('click', () => downloadHeart());
+document.querySelector<HTMLButtonElement>('#sticker-download-button')?.addEventListener('click', () => downloadHeart(true));
 document.querySelector<HTMLButtonElement>('#share-button')?.addEventListener('click', copyShareLink);
